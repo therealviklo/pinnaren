@@ -1,0 +1,13 @@
+{
+  "upload": {
+    "title": "Upload images",
+    "choose": "Choose images",
+    "remove": "Remove {{name}}"
+  },
+  "preview": {
+    "alt": "Preview"
+  },
+  "language": {
+    "label": "Language"
+  }
+}

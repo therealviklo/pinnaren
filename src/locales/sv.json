@@ -1,0 +1,13 @@
+{
+  "upload": {
+    "title": "Ladda upp bilder",
+    "choose": "Välj bilder",
+    "remove": "Ta bort {{name}}"
+  },
+  "preview": {
+    "alt": "Förhandsvisning"
+  },
+  "language": {
+    "label": "Språk"
+  }
+}
