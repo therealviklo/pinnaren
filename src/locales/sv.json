@@ -1,13 +1,21 @@
 {
+  "main": {
+    "title": "Pinnaren",
+    "open": "Open"
+  },
   "upload": {
     "title": "Ladda upp bilder",
     "choose": "Välj bilder",
     "remove": "Ta bort {{name}}"
   },
   "preview": {
-    "alt": "Förhandsvisning"
+    "alt": "Förhandsvisning",
+    "name": "Bild"
   },
   "language": {
     "label": "Språk"
+  },
+  "map": {
+    "back": "Tillbaka"
   }
 }

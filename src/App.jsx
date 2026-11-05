@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import './App.css'
+import MapView from './MapView'
 
 function App() {
   const { t, i18n } = useTranslation()
   // Image entry structure: { id, file, name, url }
   const [images, setImages] = useState([])
   const [selectedId, setSelectedId] = useState(null)
+  const [view, setView] = useState('upload') // 'upload' | 'map'
   const nextId = useRef(0)
 
   function handleChange(e) {
@@ -52,6 +54,10 @@ function App() {
 
   const selected = images.find((img) => img.id === selectedId)
 
+  if (view === 'map') {
+    return <MapView image={selected} onBack={() => setView('upload')} />
+  }
+
   return (
     <section>
       <label className="language-switcher">
@@ -64,6 +70,8 @@ function App() {
           <option value="en">English</option>
         </select>
       </label>
+
+      <h1>{t('main.title')}</h1>
 
       <h2>{t('upload.title')}</h2>
 
@@ -108,6 +116,12 @@ function App() {
           <img src={selected.url} alt={t('preview.alt')} style={{ maxWidth: '300px' }} />
         </div>
       )}
+
+      <div>
+        <button type="button" onClick={() => setView('map')}>
+          {t('main.open')}
+        </button>
+      </div>
     </section>
   )
 }
