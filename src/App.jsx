@@ -4,7 +4,7 @@ import './App.css'
 
 function App() {
   const { t, i18n } = useTranslation()
-  // Image entry structure: { id, file, url }
+  // Image entry structure: { id, file, name, url }
   const [images, setImages] = useState([])
   const [selectedId, setSelectedId] = useState(null)
   const nextId = useRef(0)
@@ -16,6 +16,7 @@ function App() {
     const added = picked.map((file) => ({
       id: nextId.current++,
       file,
+      name: file.name,
       url: URL.createObjectURL(file),
     }))
 
@@ -34,6 +35,12 @@ function App() {
     if (selectedId === id) {
       setSelectedId(remaining.length > 0 ? remaining[0].id : null)
     }
+  }
+  
+  function handleRename(id, name) {
+    setImages((prev) =>
+      prev.map((img) => (img.id === id ? { ...img, name } : img))
+    )
   }
 
   // Free all preview URLs when the component unmounts
@@ -71,13 +78,13 @@ function App() {
             <li key={img.id} className={img.id === selectedId ? 'selected' : ''}>
               <button type="button" className="file-select" onClick={() => setSelectedId(img.id)}>
                 <img src={img.url} alt="" className="thumb" />
-                <span>{img.file.name}</span>
+                <span>{img.name}</span>
               </button>
               <button
                 type="button"
                 className="file-remove"
                 onClick={() => handleRemove(img.id)}
-                aria-label={t('upload.remove', { name: img.file.name })}
+                aria-label={t('upload.remove', { name: img.name })}
               >
                 ×
               </button>
@@ -88,7 +95,16 @@ function App() {
 
       {selected && (
         <div className="preview">
-          <p>{selected.file.name}</p>
+          <input
+            type="text"
+            value={selected.name}
+            onChange={(e) => handleRename(selected.id, e.target.value)}
+            onBlur={(e) => {
+              // Fallback to original filename if empty
+              if (!e.target.value.trim()) handleRename(selected.id, selected.file.name)
+            }}
+            aria-label={t('preview.name')}
+          />
           <img src={selected.url} alt={t('preview.alt')} style={{ maxWidth: '300px' }} />
         </div>
       )}
