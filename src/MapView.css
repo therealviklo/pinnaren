@@ -1,0 +1,30 @@
+.map-viewport {
+  position: fixed;
+  inset: 0;
+  overflow: auto;
+  background: var(--bg, #000);
+  z-index: 1;
+}
+
+.map-canvas {
+  position: relative;
+  width: max-content;
+}
+
+.map-image {
+  display: block;
+  max-width: none;
+  user-select: none;
+}
+
+.map-pin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+}
+
+.map-back {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 2;
+}

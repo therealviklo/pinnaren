@@ -1,15 +1,21 @@
 import { useTranslation } from 'react-i18next'
+import './MapView.css'
 
-// image: { id, file, name, url } or undefined if nothing is selected
 function MapView({ image, onBack }) {
   const { t } = useTranslation()
 
   return (
-    <section>
-      <button type="button" onClick={onBack}>
+    <section className="map-view">
+      <div className="map-viewport">
+        <div className="map-canvas">
+          {image && <img className="map-image" src={image.url} alt={image.name} draggable={false} />}
+          {/* <div className="map-pin" style={{ left: 400, top: 250 }}>📍</div> */}
+        </div>
+      </div>
+
+      <button type="button" className="map-back" onClick={onBack}>
         {t('map.back')}
       </button>
-      {image && <img src={image.url} alt={image.name} style={{ maxWidth: '100%' }} />}
     </section>
   )
 }
