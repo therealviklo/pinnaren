@@ -5,6 +5,11 @@
   background: var(--bg, #000);
   z-index: 1;
   cursor: grab;
+  scrollbar-width: none;
+}
+
+.map-viewport::-webkit-scrollbar {
+  display: none;
 }
 
 .map-viewport.is-dragging {

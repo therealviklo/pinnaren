@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import './MapView.css'
 
@@ -7,6 +7,14 @@ function MapView({ image, onBack }) {
   const viewportRef = useRef(null)
   const dragRef = useRef(null)
   const [dragging, setDragging] = useState(false)
+
+  // Block wheel scrolling
+  useEffect(() => {
+    const viewport = viewportRef.current
+    const blockWheel = (e) => e.preventDefault()
+    viewport.addEventListener('wheel', blockWheel, { passive: false })
+    return () => viewport.removeEventListener('wheel', blockWheel)
+  }, [])
 
   function handlePointerDown(e) {
     if (e.pointerType === 'touch' || e.button !== 0) return
