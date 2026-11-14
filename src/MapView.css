@@ -3,7 +3,7 @@
   inset: 0;
   display: flex;
   overflow: auto;
-  background: var(--bg, #000);
+  background: #000;
   z-index: 1;
   cursor: grab;
   scrollbar-width: none;
