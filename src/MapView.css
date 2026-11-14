@@ -4,6 +4,11 @@
   overflow: auto;
   background: var(--bg, #000);
   z-index: 1;
+  cursor: grab;
+}
+
+.map-viewport.is-dragging {
+  cursor: grabbing;
 }
 
 .map-canvas {
