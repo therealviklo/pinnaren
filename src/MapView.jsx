@@ -18,28 +18,83 @@ function MapView({ image, onBack }) {
 
   useEffect(() => {
     const viewport = viewportRef.current
+    const canvas = canvasRef.current
+
+    // Zoom so that map point (x, y), in unzoomed image pixels, ends up at
+    // client position (clientX, clientY).
+    function zoomTo(newZoom, x, y, clientX, clientY) {
+      newZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, newZoom))
+      const viewportRect = viewport.getBoundingClientRect()
+      if (newZoom !== zoomRef.current) {
+        zoomRef.current = newZoom
+        flushSync(() => setZoom(newZoom)) // resize the canvas now so the scroll below isn't clamped
+      }
+      viewport.scrollLeft = canvas.offsetLeft + x * newZoom - (clientX - viewportRect.left)
+      viewport.scrollTop = canvas.offsetTop + y * newZoom - (clientY - viewportRect.top)
+    }
+
+    function mapPoint(clientX, clientY) {
+      const canvasRect = canvas.getBoundingClientRect()
+      return {
+        x: (clientX - canvasRect.left) / zoomRef.current,
+        y: (clientY - canvasRect.top) / zoomRef.current,
+      }
+    }
+
     function handleWheel(e) {
       e.preventDefault()
       const delta = e.deltaY * (e.deltaMode === 1 ? 33 : 1) * (e.ctrlKey ? 10 : 1)
       const oldZoom = zoomRef.current
       const newZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, oldZoom * Math.exp(-delta * 0.0015)))
       if (newZoom === oldZoom) return
-
-      const canvas = canvasRef.current
-      const viewportRect = viewport.getBoundingClientRect()
-      const canvasRect = canvas.getBoundingClientRect()
-      const mx = e.clientX - viewportRect.left
-      const my = e.clientY - viewportRect.top
-      const x = (e.clientX - canvasRect.left) / oldZoom
-      const y = (e.clientY - canvasRect.top) / oldZoom
-
-      zoomRef.current = newZoom
-      flushSync(() => setZoom(newZoom)) // resize the canvas now so the scroll below isn't clamped
-      viewport.scrollLeft = canvas.offsetLeft + x * newZoom - mx
-      viewport.scrollTop = canvas.offsetTop + y * newZoom - my
+      const { x, y } = mapPoint(e.clientX, e.clientY)
+      zoomTo(newZoom, x, y, e.clientX, e.clientY)
     }
+
+    let pinch = null
+
+    function pinchInfo(touches) {
+      const [a, b] = touches
+      return {
+        distance: Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY),
+        cx: (a.clientX + b.clientX) / 2,
+        cy: (a.clientY + b.clientY) / 2,
+      }
+    }
+
+    function handleTouchStart(e) {
+      if (e.touches.length !== 2) {
+        pinch = null
+        return
+      }
+      e.preventDefault()
+      const { distance, cx, cy } = pinchInfo(e.touches)
+      pinch = { distance, zoom: zoomRef.current, ...mapPoint(cx, cy) }
+    }
+
+    function handleTouchMove(e) {
+      if (!pinch || e.touches.length !== 2) return
+      e.preventDefault()
+      const { distance, cx, cy } = pinchInfo(e.touches)
+      zoomTo(pinch.zoom * (distance / pinch.distance), pinch.x, pinch.y, cx, cy)
+    }
+
+    function handleTouchEnd(e) {
+      if (e.touches.length < 2) pinch = null
+    }
+
     viewport.addEventListener('wheel', handleWheel, { passive: false })
-    return () => viewport.removeEventListener('wheel', handleWheel)
+    viewport.addEventListener('touchstart', handleTouchStart, { passive: false })
+    viewport.addEventListener('touchmove', handleTouchMove, { passive: false })
+    viewport.addEventListener('touchend', handleTouchEnd)
+    viewport.addEventListener('touchcancel', handleTouchEnd)
+    return () => {
+      viewport.removeEventListener('wheel', handleWheel)
+      viewport.removeEventListener('touchstart', handleTouchStart)
+      viewport.removeEventListener('touchmove', handleTouchMove)
+      viewport.removeEventListener('touchend', handleTouchEnd)
+      viewport.removeEventListener('touchcancel', handleTouchEnd)
+    }
   }, [])
 
   function handlePointerDown(e) {
